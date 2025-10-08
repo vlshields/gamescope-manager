@@ -1,0 +1,181 @@
+#!/bin/bash
+
+# gamescope-manager - A mini package manager for gamescope on Debian Trixie
+# Usage: ./gamescope-manager [install|remove|update|list|info]
+
+set -e
+
+REPO_URL="http://ftp.us.debian.org/debian/pool/contrib/g/gamescope/"
+CACHE_DIR="/var/cache/gamescope-manager"
+INSTALLED_FILE="/var/lib/gamescope-manager/installed.txt"
+ARCH=$(dpkg --print-architecture)
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Check if running as root
+check_root() {
+    if [ "$EUID" -ne 0 ]; then
+        echo -e "${RED}Error: This command requires root privileges. Please run with sudo.${NC}"
+        exit 1
+    fi
+}
+
+# Create necessary directories
+init_dirs() {
+    mkdir -p "$CACHE_DIR"
+    mkdir -p "$(dirname "$INSTALLED_FILE")"
+}
+
+# Fetch available packages from repository
+fetch_packages() {
+    echo -e "${BLUE}Fetching package list from repository...${NC}"
+    curl -s "$REPO_URL" | grep -oP 'href="\K[^"]*\.deb' | grep "$ARCH\|all" || true
+}
+
+download_package() {
+    local pkg=$1
+    local dest="$CACHE_DIR/$pkg"
+    
+    if [ -f "$dest" ]; then
+        echo -e "${YELLOW}Package already in cache: $pkg${NC}"
+        return 0
+    fi
+    
+    echo -e "${BLUE}Downloading $pkg...${NC}"
+    curl -# -o "$dest" "$REPO_URL$pkg"
+}
+
+install_package() {
+    local pkg=$1
+    
+    echo -e "${GREEN}Installing $pkg...${NC}"
+    dpkg -i "$CACHE_DIR/$pkg" || apt-get install -f -y
+    
+    echo "$pkg" >> "$INSTALLED_FILE"
+    echo -e "${GREEN}Successfully installed $pkg${NC}"
+}
+
+remove_gamescope() {
+    echo -e "${YELLOW}Removing gamescope...${NC}"
+    apt-get remove -y gamescope || true
+    rm -f "$INSTALLED_FILE"
+    echo -e "${GREEN}Gamescope removed successfully${NC}"
+}
+
+list_packages() {
+    echo -e "${BLUE}Available gamescope packages:${NC}"
+    fetch_packages | sort -V
+}
+
+package_info() {
+    local packages=$(fetch_packages | sort -V | tail -n 3)
+    
+    echo -e "${BLUE}Latest gamescope packages:${NC}"
+    echo "$packages"
+    echo
+    
+    if [ -f "$INSTALLED_FILE" ]; then
+        echo -e "${GREEN}Installed:${NC}"
+        cat "$INSTALLED_FILE"
+    else
+        echo -e "${YELLOW}No packages installed${NC}"
+    fi
+}
+
+# check the contrib component of ftp.us.debian for the latest gamescope version.
+# you may want to update REPO_URL to point to a mirror closer to your location.
+update_gamescope() {
+    check_root
+    init_dirs
+    
+    echo -e "${BLUE}Finding latest gamescope package...${NC}"
+    local latest=$(fetch_packages | grep "gamescope_" | sort -V | tail -n 1)
+    
+    if [ -z "$latest" ]; then
+        echo -e "${RED}Error: Could not find gamescope package for $ARCH${NC}"
+        exit 1
+    fi
+    
+    echo -e "${GREEN}Latest version: $latest${NC}"
+    download_package "$latest"
+    install_package "$latest"
+}
+
+install_gamescope() {
+    check_root
+    init_dirs
+    
+    echo -e "${BLUE}Finding latest gamescope package...${NC}"
+    local latest=$(fetch_packages | grep "gamescope_" | sort -V | tail -n 1)
+    
+    if [ -z "$latest" ]; then
+        echo -e "${RED}Error: Could not find gamescope package for $ARCH${NC}"
+        exit 1
+    fi
+    
+    echo -e "${GREEN}Found: $latest${NC}"
+    read -p "Install this package? (y/N) " -n 1 -r
+    echo
+    
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        download_package "$latest"
+        install_package "$latest"
+    else
+        echo -e "${YELLOW}Installation cancelled${NC}"
+    fi
+}
+
+usage() {
+    cat << EOF
+gamescope-manager - Mini package manager for gamescope
+
+Usage: gamescope-manager [COMMAND]
+
+Commands:
+    install     Install the latest gamescope package
+    remove      Remove gamescope
+    update      Update to the latest version
+    list        List all available packages
+    info        Show package information
+    help        Show this help message
+
+Examples:
+    sudo gamescope-manager install
+    sudo gamescope-manager update
+    gamescope-manager list
+
+EOF
+}
+
+# Main logic
+case "${1:-help}" in
+    install)
+        install_gamescope
+        ;;
+    remove)
+        check_root
+        remove_gamescope
+        ;;
+    update)
+        update_gamescope
+        ;;
+    list)
+        list_packages
+        ;;
+    info)
+        package_info
+        ;;
+    help|--help|-h)
+        usage
+        ;;
+    *)
+        echo -e "${RED}Error: Unknown command '$1'${NC}"
+        echo
+        usage
+        exit 1
+        ;;
+esac
