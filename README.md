@@ -2,12 +2,12 @@
 
 A psuedo package manager for gamescope on Debian Trixie.
 
-#### Background
+**Background**
 
 Gamescope did not make it into Debian's latest stable release. Gamescope is an amazing tool built by Valve. It is a microcompositor built specifically for
 Steam and allows users to create standalone or nested "Steam Sessions". Since Debian Trixie is a great distro for gaming (especially if you want a stable distro like me), I thought this script might be useful for others. Another option would be to pin gamescope from the unstable repository - but that is a bit involved and not really worth it for a single package. Before building gamescope-manager I would manually check for a new version once in a while and use wget to pull in the .deb and install. gamescope-manager automates that process and does even more.
 
-#### Caution
+**Caution**
 
 Debian developers offer hours of their free time to ensure *every* package in debian's stable release is very thoroughly tested. If you install gamescope on Trixie and experiance bugs or breakages please *do not* report them to the Debian Bug Tracker. Use this manager at your own risk.
 
@@ -23,12 +23,12 @@ cd gamescope-manager
 # make it executable 
 chmod +x gamescope-manager
 
-# Create a symlink in case of updates to gamescope-manager
+# (Optional) Create a symlink 
 sudo ln -s $(pwd)/gamescope-manager /usr/local/bin/gamescope-manager
 ```
 
 ## Usage
-gamescope-manager has five available commands and the obligatory --help flag:
+To view all available options, use the --help flag:
 
 **Install**: Downloads and installs the latest gamescope package
 
