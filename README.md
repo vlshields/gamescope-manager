@@ -30,21 +30,27 @@ sudo ln -s $(pwd)/gamescope-manager /usr/local/bin/gamescope-manager
 ## Usage
 To view all available options, use the --help flag:
 
-**Install**: Downloads and installs the latest gamescope package
-
-**Remove**: Uninstalls gamescope
-
-**Update**: Updates to the latest version
-
-**List**: Shows all available packages in the repository
-
-**Info**: Displays information about available and installed packages
-
 ```bash
-gamescope-manager [install|remove|update|list|info]
-```
-#### Examples
-```bash
+~$ gamescope-manager --help
+gamescope-manager - Mini package manager for gamescope
+
+Usage: gamescope-manager [COMMAND]
+
+Commands:
+    install     Install the latest gamescope package
+    remove      Remove gamescope
+    update      Update to the latest version
+    list        List all available packages
+    info        Show package information
+    help        Show this help message
+
+Examples:
+    sudo gamescope-manager install
+    sudo gamescope-manager update
+    gamescope-manager list
+
+# More examples
+
 # Install gamescope
 sudo gamescope-manager install
 
