@@ -13,7 +13,8 @@ Debian developers offer hours of their free time to ensure *every* package in de
 
 ## Installation
 
-Instructions on how to install the project.
+Using build.sh (probably should have been called install.sh) creates a symlink to /etc/local/bin/gamescope-manager.
+This is the recommended method.
 
 ```bash
 # clone the repo
@@ -21,10 +22,14 @@ git clone https://github.com/vlshields/gamescope-manager.git
 cd gamescope-manager
 
 # make it executable 
-chmod +x gamescope-manager
+chmod +x build.sh
 
-# (Optional) Create a symlink 
-sudo ln -s $(pwd)/gamescope-manager /usr/local/bin/gamescope-manager
+# creates the symlink
+./build.sh
+
+# Updating
+cd $HOME/gamescope-manager #sorry my keyboard doesnt have a tilde
+git pull
 ```
 
 ## Usage
