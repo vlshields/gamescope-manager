@@ -2,6 +2,11 @@
 
 A psuedo package manager for gamescope on Debian Trixie.
 
+## IMPORTANT update
+
+Please be informed that the latest gamescope build in the unstable repository is incompatible with Trixie.
+The most recent compatible .deb is in this repo and gamescope-manager now points to it.
+
 **Background**
 
 Gamescope did not make it into Debian's latest stable release. Gamescope is an amazing tool built by Valve. It is a microcompositor built specifically for
