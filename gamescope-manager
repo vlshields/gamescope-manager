@@ -5,7 +5,7 @@
 
 set -e
 
-REPO_URL="http://ftp.us.debian.org/debian/pool/contrib/g/gamescope/"
+REPO_URL="https://github.com/vlshields/gamescope-manager/blob/main/gamescope_3.16.15-2_amd64.deb"
 CACHE_DIR="/var/cache/gamescope-manager"
 INSTALLED_FILE="/var/lib/gamescope-manager/installed.txt"
 ARCH=$(dpkg --print-architecture)
